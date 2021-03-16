@@ -17,6 +17,7 @@ import {
   useColorScheme,
   View,
 } from 'react-native';
+import Realm from 'realm';
 
 import {
   Colors,
