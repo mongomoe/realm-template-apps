@@ -1,12 +1,13 @@
 import React, {useEffect, useState} from 'react';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
-import {StyleSheet, Text, View, Button} from 'react-native';
-import {Input} from 'react-native-elements';
+import {StyleSheet, Text, View} from 'react-native';
+import {Input, Button} from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 Icon.loadFont();
 
 export function WelcomeView({navigation, route}) {
   const [passwordHidden, setPasswordHidden] = useState(true); // true by default
+  const [isInSignUpMode, setIsInSignUpMode] = useState(true);
 
   return (
     <SafeAreaProvider>
@@ -25,11 +26,25 @@ export function WelcomeView({navigation, route}) {
             />
           }
         />
-
-        <Button
-          title="Go to Tasks Screen"
-          onPress={() => navigation.navigate('Tasks')}
-        />
+        {isInSignUpMode ? (
+          <>
+            <Button title="Create Account" buttonStyle={styles.mainButton} />
+            <Button
+              title="Already have an account? Log In"
+              type="clear"
+              onPress={() => setIsInSignUpMode(!isInSignUpMode)}
+            />
+          </>
+        ) : (
+          <>
+            <Button title="Log In" buttonStyle={styles.mainButton} />
+            <Button
+              title="Don't have an account? Create Account"
+              type="clear"
+              onPress={() => setIsInSignUpMode(!isInSignUpMode)}
+            />
+          </>
+        )}
       </View>
     </SafeAreaProvider>
   );
@@ -38,6 +53,9 @@ export function WelcomeView({navigation, route}) {
 const styles = StyleSheet.create({
   title: {
     fontSize: 18,
+  },
+  mainButton: {
+    width: 350,
   },
   //   sectionContainer: {
   //     marginTop: 32,
