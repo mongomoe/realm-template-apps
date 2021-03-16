@@ -15,6 +15,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 import {WelcomeView} from './views/WelcomeView';
 import {TasksView} from './views/TasksView';
 import {AuthProvider} from './realms/auth/AuthProvider';
+import {Logout} from './components/Logout';
 
 const Stack = createStackNavigator();
 
@@ -25,7 +26,15 @@ const App = () => {
         <NavigationContainer>
           <Stack.Navigator>
             <Stack.Screen name="Welcome" component={WelcomeView} />
-            <Stack.Screen name="Tasks" component={TasksView} />
+            <Stack.Screen
+              name="Tasks"
+              component={TasksView}
+              options={{
+                headerLeft: function Header() {
+                  return <Logout />;
+                },
+              }}
+            />
           </Stack.Navigator>
         </NavigationContainer>
         <View style={styles.footer}>

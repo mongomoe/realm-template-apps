@@ -1,8 +1,11 @@
 import React from 'react';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {StyleSheet, Text, View, Button} from 'react-native';
+import {useAuth} from '../realms/auth/AuthProvider';
 
 export function TasksView({navigation, route}) {
+  const {signOut} = useAuth();
+
   return (
     <SafeAreaProvider>
       <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
