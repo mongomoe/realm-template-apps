@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 16,
-    textAlign: 'center', // <-- the magic
+    textAlign: 'center',
   },
   footer: {
     margin: 40,
