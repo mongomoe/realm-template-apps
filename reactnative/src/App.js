@@ -14,24 +14,27 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {WelcomeView} from './views/WelcomeView';
 import {TasksView} from './views/TasksView';
+import {AuthProvider} from './realms/auth/AuthProvider';
 
 const Stack = createStackNavigator();
 
 const App = () => {
   return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name="Welcome" component={WelcomeView} />
-          <Stack.Screen name="Tasks" component={TasksView} />
-        </Stack.Navigator>
-      </NavigationContainer>
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>
-          Built with the MongoDB Realm Sync Template
-        </Text>
-      </View>
-    </SafeAreaProvider>
+    <AuthProvider>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen name="Welcome" component={WelcomeView} />
+            <Stack.Screen name="Tasks" component={TasksView} />
+          </Stack.Navigator>
+        </NavigationContainer>
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>
+            Built with the MongoDB Realm Sync Template
+          </Text>
+        </View>
+      </SafeAreaProvider>
+    </AuthProvider>
   );
 };
 
