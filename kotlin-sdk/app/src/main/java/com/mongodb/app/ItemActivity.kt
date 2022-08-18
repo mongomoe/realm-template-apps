@@ -7,7 +7,9 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -18,10 +20,8 @@ import io.realm.kotlin.Realm
 import io.realm.kotlin.mongodb.sync.SyncConfiguration
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.mongodb.subscriptions
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+
 
 class ItemActivity : AppCompatActivity() {
     private lateinit var realm: Realm
@@ -55,16 +55,15 @@ class ItemActivity : AppCompatActivity() {
         val user = realmApp.currentUser
         if (user == null) {
             startActivity(Intent(this, LoginActivity::class.java))
-        }
-        else {
+        } else {
             config = SyncConfiguration.Builder(user, setOf(Item::class))
                 .initialSubscriptions { realm ->
                     add(
                         realm.query<Item>(
-                            "owner_id == $0",
+                            "owner_id == \$0 AND priority <= ${PriorityLevel.High.priority.toString()}",
                             realmApp.currentUser!!.identity
                         ),
-                        "User's Items"
+                        "User's High Priority Tasks"
                     )
                 }
                 .waitForInitialRemoteData()
@@ -76,6 +75,7 @@ class ItemActivity : AppCompatActivity() {
             val query = realm.query<Item>()
             itemAdapter = ItemAdapter(query.find(), realm, query.asFlow())
             recyclerView.adapter = itemAdapter
+
         }
     }
 
@@ -123,11 +123,21 @@ class ItemActivity : AppCompatActivity() {
         val mView: View = layoutInflater.inflate(R.layout.create_item_dialog, null)
 
         val itemSummaryInput = mView.findViewById<View>(R.id.plain_text_input) as EditText
+        val mSpinner = mView.findViewById<View>(R.id.spinner) as Spinner
+
+        val adapter = ArrayAdapter.createFromResource(
+            this,
+            R.array.priorities,
+            android.R.layout.simple_spinner_item
+        )
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        mSpinner.adapter = adapter
 
         mBuilder
             .setPositiveButton("Create") { dialog, _ ->
                 run {
                     val item = Item(realmApp.currentUser!!.identity)
+                    item.priority = PriorityLevel.valueOf(mSpinner.selectedItem.toString()).priority
                     item.summary = itemSummaryInput.text.toString()
 
                     CoroutineScope(Dispatchers.IO).launch {
@@ -139,18 +149,19 @@ class ItemActivity : AppCompatActivity() {
                     // Display the item created using Android's Toast feedback popup
                     Toast.makeText(
                         this,
-                        "Item created: ${item.summary}",
+                        "Item created: ${item.summary} with priority: ${item.priority}",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
+            }
             .setNegativeButton("Cancel") { dialog, _ ->
-                    dialog.cancel()
-                }
-        val dialog = dialogBuilder.create()
-        dialog.setView(input)
+                dialog.cancel()
+            }
+
+        mBuilder.setView(mView)
+        val dialog = mBuilder.create()
         dialog.setTitle("Add Item")
         dialog.show()
-        input.requestFocus()
     }
 
     /**
