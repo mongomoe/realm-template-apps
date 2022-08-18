@@ -20,10 +20,8 @@ import io.realm.kotlin.Realm
 import io.realm.kotlin.mongodb.sync.SyncConfiguration
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.mongodb.subscriptions
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+
 
 class ItemActivity : AppCompatActivity() {
     private lateinit var realm: Realm
@@ -62,10 +60,10 @@ class ItemActivity : AppCompatActivity() {
                 .initialSubscriptions { realm ->
                     add(
                         realm.query<Item>(
-                            "owner_id == $0",
+                            "owner_id == \$0 AND priority <= ${PriorityLevel.High.priority.toString()}",
                             realmApp.currentUser!!.identity
                         ),
-                        "User's Items"
+                        "User's High Priority Tasks"
                     )
                 }
                 .waitForInitialRemoteData()
@@ -77,6 +75,7 @@ class ItemActivity : AppCompatActivity() {
             val query = realm.query<Item>()
             itemAdapter = ItemAdapter(query.find(), realm, query.asFlow())
             recyclerView.adapter = itemAdapter
+
         }
     }
 
@@ -154,7 +153,7 @@ class ItemActivity : AppCompatActivity() {
                         Toast.LENGTH_SHORT
                     ).show()
                 }
-        }
+            }
             .setNegativeButton("Cancel") { dialog, _ ->
                 dialog.cancel()
             }
